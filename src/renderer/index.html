@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; font-src 'self' https://unpkg.com https://cdn.jsdelivr.net; img-src 'self' blob:; media-src 'self' blob: mediastream:; connect-src 'self' wss://0.peerjs.com https://0.peerjs.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self';">
+  <title>IceVox</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script>
+    // Apply saved theme before render to avoid flash
+    (function() {
+      var t = localStorage.getItem('icevox-theme') || 'midnight';
+      if (!['midnight', 'arctic', 'slate'].includes(t)) t = 'midnight';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+</head>
+<body class="basic-mode">
+
+  <main class="app-container">
+
+    <!-- ==========================================
+         TOP STRIP: Chat (left) | Users (right)
+    ========================================== -->
+    <div class="top-strip">
+
+      <!-- Logo at the chat/users divider (clickable → opens About dialog) -->
+      <div class="app-logo" id="about-trigger">
+        <img data-icon="icevox_logo" src="../../assets/icons/icevox_logo_1.ico" alt="IceVox" class="logo-img">
+        <i class="ph-bold ph-info about-icon"></i>
+      </div>
+
+      <!-- CHAT PANEL -->
+      <div class="chat-panel">
+        <div class="panel-title">
+          <img data-icon-png="icevox_chat_symbol" src="../../assets/generated_icons/icevox_chat_symbol_1.png" class="panel-title-icon" alt=""> Chat
+        </div>
+        <div class="chat-messages" id="chatMessages">
+          <div class="empty-state">
+            <img data-icon-png="icevox_join_chat_placeholder" src="../../assets/generated_icons/icevox_join_chat_placeholder_1.png" class="placeholder-img" alt=""><br>
+            Join a room to chat
+          </div>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" id="chatInput" placeholder="Connect to chat..." maxlength="500" disabled>
+          <button id="chatSendBtn" class="icon-btn" disabled>
+            <img data-icon-png="icevox_send_chat" src="../../assets/generated_icons/icevox_send_chat_1.png" class="action-icon send-icon" alt="Send">
+            <i class="ph-bold ph-paper-plane-tilt slate-icon"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Drag handle between chat and users panels -->
+      <div class="panel-divider" id="panel-divider"></div>
+
+      <!-- USERS + CONNECTION PANEL -->
+      <div class="users-panel">
+
+        <!-- Connection Zone (create/join/room info) -->
+        <div class="connection-zone">
+
+          <!-- Disconnected View -->
+          <div id="connection-view-disconnected" class="connection-view">
+            <div class="room-action-row">
+              <button id="create-room-btn" class="icon-btn">
+                <img data-icon="create_room" src="../../assets/icons/create_room_1.ico" alt="Create Room" class="action-icon">
+                <i class="ph-bold ph-plus-circle slate-icon"></i>
+                <span class="icon-label">Create</span>
+              </button>
+              <button id="join-room-btn" class="icon-btn" disabled>
+                <img data-icon="join_room" src="../../assets/icons/join_room_1.ico" alt="Join Room" class="action-icon">
+                <i class="ph-bold ph-sign-in slate-icon"></i>
+                <span class="icon-label">Join</span>
+              </button>
+              <input type="text" id="room-id-input" class="room-input compact-input" placeholder="Room ID or invite link...">
+            </div>
+            <div class="password-row">
+              <img data-icon="password" src="../../assets/icons/password_1.ico" class="password-row-icon" alt="Password">
+              <input type="password" id="room-password-input" class="room-input compact-input password-input" placeholder="Password (optional)">
+            </div>
+            <div id="audio-warning" class="connection-warning" style="display: none;">
+              <i class="ph-fill ph-warning-circle"></i> Start audio first
+            </div>
+          </div>
+
+          <!-- Waiting View (Host) -->
+          <div id="connection-view-waiting" class="connection-view" style="display: none;">
+            <div class="compact-room-status">
+              <span class="room-id-display" id="room-id-display"></span>
+              <button id="copy-room-id-btn" class="icon-btn">
+                <img data-icon="copy_room_id_v2" src="../../assets/icons/copy_room_id_v2_1.ico" class="action-icon copy-icon" alt="Invite">
+                <i class="ph-bold ph-link slate-icon"></i>
+                <span class="icon-label">Invite</span>
+              </button>
+              <div id="copy-feedback" class="copy-feedback">Link copied!</div>
+              <button id="lock-room-btn-waiting" class="icon-btn" title="Change Room Password">
+                <img data-icon="password" src="../../assets/icons/password_1.ico" class="action-icon lock-icon" alt="Password">
+                <i class="ph-bold ph-lock slate-icon"></i>
+                <span class="icon-label">Lock</span>
+              </button>
+              <button id="video-toggle-btn-waiting" class="icon-btn" title="Video" disabled>
+                <img data-icon="video" src="../../assets/icons/video_1.ico" class="action-icon video-icon" alt="Video">
+                <i class="ph-bold ph-video-camera slate-icon"></i>
+                <span class="icon-label">Video</span>
+              </button>
+              <button id="leave-room-btn-waiting" class="icon-btn danger-icon">
+                <img data-icon="leave_room" src="../../assets/icons/leave_room_1.ico" class="action-icon leave-icon" alt="Leave Room">
+                <i class="ph-bold ph-sign-out slate-icon"></i>
+                <span class="icon-label">Leave</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Connected View -->
+          <div id="connection-view-connected" class="connection-view" style="display: none;">
+            <div class="compact-room-status">
+              <span class="room-id-display small-id" id="room-id-connected"></span>
+              <span id="user-role" class="role-badge"></span>
+              <button id="invite-btn-connected" class="icon-btn" title="Copy invite link">
+                <img data-icon="copy_room_id_v2" src="../../assets/icons/copy_room_id_v2_1.ico" class="action-icon copy-icon" alt="Invite">
+                <i class="ph-bold ph-link slate-icon"></i>
+                <span class="icon-label">Invite</span>
+              </button>
+              <button id="lock-room-btn-connected" class="icon-btn" title="Change Room Password" style="display: none;">
+                <img data-icon="password" src="../../assets/icons/password_1.ico" class="action-icon lock-icon" alt="Password">
+                <i class="ph-bold ph-lock slate-icon"></i>
+                <span class="icon-label">Lock</span>
+              </button>
+              <button id="video-toggle-btn-connected" class="icon-btn" title="Video">
+                <img data-icon="video" src="../../assets/icons/video_1.ico" class="action-icon video-icon" alt="Video">
+                <i class="ph-bold ph-video-camera slate-icon"></i>
+                <span class="icon-label">Video</span>
+              </button>
+              <button id="leave-room-btn-connected" class="icon-btn danger-icon">
+                <img data-icon="leave_room" src="../../assets/icons/leave_room_1.ico" class="action-icon leave-icon" alt="Leave Room">
+                <i class="ph-bold ph-sign-out slate-icon"></i>
+                <span class="icon-label">Leave</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Connection Error -->
+          <div id="connection-error" class="connection-error" style="display: none;"></div>
+
+          <!-- Hidden legacy elements (renderer.js compatibility) -->
+          <div id="device-selector-popup" style="display:none;"></div>
+          <div id="device-status-item" style="display:none;"><span id="device-status"></span></div>
+          <button id="close-popup-btn" style="display:none;"></button>
+          <div id="connection-status-item" style="display:none;"><span id="connection-status"></span></div>
+        </div>
+
+        <!-- Participants Zone -->
+        <div class="participants-zone">
+          <!-- Header row: count (left) + alias input (right), visible only when connected -->
+          <div class="participant-header-row" id="participant-header-row" style="display: none;">
+            <span id="participant-count" class="participant-header"></span>
+            <input type="text" id="displayNameInput" class="room-input compact-input" placeholder="Your name" maxlength="30" style="max-width: 90px;">
+          </div>
+          <div id="participantList" class="participant-list">
+            <div class="empty-state small-empty">
+              <img data-icon-png="icevox_no_connections_placeholder" src="../../assets/generated_icons/icevox_no_connections_placeholder_1.png" class="placeholder-img" alt=""><br>
+              No connections
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Drag handle between top strip and bottom area (vertical resize) -->
+    <div class="strip-divider" id="strip-divider"></div>
+
+    <!-- ==========================================
+         BOTTOM AREA: Controls (left) | DJ (right)
+    ========================================== -->
+    <div class="bottom-area">
+
+      <!-- CONTROLS PANEL (left column) -->
+      <div class="controls-panel">
+
+        <!-- Volume Knobs (side by side) -->
+        <div class="knobs-row">
+          <div class="knob-group">
+            <div class="knob-label">Loopback</div>
+            <div class="knob-track" id="loopback-knob-track">
+              <img src="../../assets/icons/volume_knob.ico" class="knob-img" alt="">
+            </div>
+            <input type="range" id="popup-monitor-volume" min="0" max="200" value="100" class="knob-input">
+            <span id="popup-volume-value" class="knob-value">100%</span>
+          </div>
+          <div class="knob-group knob-sm">
+            <div class="knob-label">Mic Boost</div>
+            <div class="knob-track" id="mic-gain-knob-track">
+              <img src="../../assets/icons/volume_knob.ico" class="knob-img" alt="">
+            </div>
+            <input type="range" id="mic-gain-input" min="0" max="200" value="100" class="knob-input">
+            <span id="mic-gain-value" class="knob-value">100%</span>
+          </div>
+        </div>
+
+        <!-- Hidden legacy element (renderer.js compatibility) -->
+        <button id="start-audio-popup-btn" style="display:none;"></button>
+
+        <!-- Controls: mute → mic select → speaker select → theme -->
+        <div class="controls-actions">
+          <button id="mute-send-btn" class="icon-btn">
+            <img data-icon="mute_mic" src="../../assets/icons/mute_mic_1.ico" alt="Mute" class="action-icon">
+            <i class="ph-bold ph-microphone slate-icon slate-icon-unmuted"></i>
+            <i class="ph-bold ph-microphone-slash slate-icon slate-icon-muted"></i>
+          </button>
+          <div class="device-group">
+            <div class="device-icon-wrapper" title="Select Microphone">
+              <img data-icon="microphone" src="../../assets/icons/microphone_1.ico" alt="Mic" class="device-icon">
+              <i class="ph-bold ph-microphone slate-icon slate-device-icon"></i>
+              <select id="input-select" class="device-select device-select-hidden">
+                <option value="">Loading...</option>
+              </select>
+            </div>
+          </div>
+          <div class="device-group">
+            <div class="device-icon-wrapper" title="Select Speaker">
+              <img data-icon="speakers" src="../../assets/icons/speakers_1.ico" alt="Out" class="device-icon">
+              <i class="ph-bold ph-speaker-high slate-icon slate-device-icon"></i>
+              <select id="output-select" class="device-select device-select-hidden">
+                <option value="">Loading...</option>
+              </select>
+            </div>
+          </div>
+          <button id="audio-settings-btn" class="icon-btn" title="Audio Settings">
+            <img data-icon="settings" src="../../assets/icons/settings_1.ico" alt="" class="action-icon">
+            <i class="ph-bold ph-gear slate-icon"></i>
+          </button>
+          <button id="theme-toggle-btn" class="icon-btn">
+            <img data-icon="theme_midnight" src="../../assets/icons/theme_midnight_1.ico" alt="Theme" class="action-icon">
+            <i class="ph-bold ph-palette slate-icon"></i>
+            <span id="theme-label" style="display:none">Midnight</span>
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- DJ AREA (main panel) -->
+      <div class="dj-area">
+
+        <!-- Mode Toggle -->
+        <div class="dj-header">
+          <button id="mode-toggle-btn" class="toggle-btn">
+            <span class="mode-basic active"><i class="ph-bold ph-sliders"></i> Basic</span>
+            <span class="mode-advanced"><i class="ph-bold ph-faders"></i> Advanced</span>
+          </button>
+        </div>
+
+        <!-- BASIC MODE VIEW -->
+        <div id="basic-mode-view" class="view-content">
+
+          <div class="basic-quick-controls">
+            <div class="quick-slider-card">
+              <h4><i class="ph-fill ph-wave-sine"></i> Pitch</h4>
+              <div class="slider-group">
+                <input type="range" id="basic-pitch-slider" min="0.5" max="2.0" value="1.0" step="0.01">
+                <span id="basic-pitch-value" class="value-display">×1.00</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="preset-panel">
+            <h2 class="section-title">Presets</h2>
+            <div class="preset-grid">
+              <button class="preset-btn" data-preset="human">
+                <img data-icon="human" src="../../assets/icons/human_1.ico" alt="Human" class="preset-icon-img">
+                <span class="preset-name">Human</span>
+              </button>
+              <button class="preset-btn" data-preset="orc">
+                <img data-icon="orc" src="../../assets/icons/orc_1.ico" alt="Orc" class="preset-icon-img">
+                <span class="preset-name">Orc</span>
+              </button>
+              <button class="preset-btn" data-preset="elf">
+                <img data-icon="elf" src="../../assets/icons/elf_1.ico" alt="Elf" class="preset-icon-img">
+                <span class="preset-name">Elf</span>
+              </button>
+              <button class="preset-btn" data-preset="wizard">
+                <img data-icon="wizard" src="../../assets/icons/wizard_1.ico" alt="Wizard" class="preset-icon-img">
+                <span class="preset-name">Wizard</span>
+              </button>
+              <button class="preset-btn" data-preset="demon">
+                <img data-icon="demon" src="../../assets/icons/demon_1.ico" alt="Demon" class="preset-icon-img">
+                <span class="preset-name">Demon</span>
+              </button>
+              <button class="preset-btn" data-preset="goblin">
+                <img data-icon="goblin" src="../../assets/icons/goblin_1.ico" alt="Goblin" class="preset-icon-img">
+                <span class="preset-name">Goblin</span>
+              </button>
+              <button class="preset-btn" data-preset="ghost">
+                <img data-icon="ghost" src="../../assets/icons/ghost_1.ico" alt="Ghost" class="preset-icon-img">
+                <span class="preset-name">Ghost</span>
+              </button>
+              <button class="preset-btn" data-preset="whisp">
+                <img data-icon="whisp" src="../../assets/icons/whisp_1.ico" alt="Whisp" class="preset-icon-img">
+                <span class="preset-name">Whisp</span>
+              </button>
+              <button class="preset-btn" data-preset="siren">
+                <img data-icon="siren" src="../../assets/icons/siren_1.ico" alt="Siren" class="preset-icon-img">
+                <span class="preset-name">Siren</span>
+              </button>
+              <button class="preset-btn" data-preset="ice-elemental">
+                <img data-icon="ice_elemental" src="../../assets/icons/ice_elemental_1.ico" alt="Ice Elemental" class="preset-icon-img">
+                <span class="preset-name">Ice Elemental</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- User-saved presets -->
+          <div class="saved-presets-section">
+            <h2 class="section-title">My Presets</h2>
+            <p class="preset-save-hint">Click empty slot to save &bull; Right-click to delete</p>
+            <div class="preset-grid">
+              <button class="preset-btn saved-slot" id="saved-slot-0" title="Click to save current settings"></button>
+              <button class="preset-btn saved-slot" id="saved-slot-1" title="Click to save current settings"></button>
+              <button class="preset-btn saved-slot" id="saved-slot-2" title="Click to save current settings"></button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ADVANCED MODE VIEW -->
+        <div id="advanced-mode-view" class="view-content" style="display: none;">
+          <h2 class="section-title">Advanced Effects</h2>
+
+          <div id="slider-panel" class="effects-card-grid">
+
+            <div class="effect-card">
+              <h4><i class="ph-bold ph-wave-sine"></i> Pitch Shifter</h4>
+              <div class="slider-group">
+                <label for="pitch-slider">Amount: <span id="pitch-value" class="value-display">×1.0</span></label>
+                <input type="range" id="pitch-slider" min="0.5" max="2.0" value="1.0" step="0.01">
+              </div>
+            </div>
+
+            <div class="effect-card">
+              <h4><i class="ph-bold ph-waves"></i> Echo</h4>
+              <div class="slider-group">
+                <label for="echo-delay-slider">Delay: <span id="echo-delay-value" class="value-display">0ms</span></label>
+                <input type="range" id="echo-delay-slider" min="0" max="1.0" value="0" step="0.01">
+              </div>
+              <div class="slider-group">
+                <label for="echo-feedback-slider">Feedback: <span id="echo-feedback-value" class="value-display">0%</span></label>
+                <input type="range" id="echo-feedback-slider" min="0" max="0.85" value="0" step="0.01">
+              </div>
+            </div>
+
+            <div class="effect-card">
+              <h4><i class="ph-bold ph-activity"></i> Tremolo</h4>
+              <div class="slider-group">
+                <label for="tremolo-freq-slider">Frequency: <span id="tremolo-freq-value" class="value-display">5.0Hz</span></label>
+                <input type="range" id="tremolo-freq-slider" min="0.5" max="20.0" value="5.0" step="0.1">
+              </div>
+              <div class="slider-group">
+                <label for="tremolo-int-slider">Intensity: <span id="tremolo-int-value" class="value-display">0%</span></label>
+                <input type="range" id="tremolo-int-slider" min="0" max="1.0" value="0" step="0.01">
+              </div>
+            </div>
+
+            <div class="effect-card">
+              <h4><i class="ph-bold ph-chart-line-up"></i> Vibrato</h4>
+              <div class="slider-group">
+                <label for="vibrato-freq-slider">Frequency: <span id="vibrato-freq-value" class="value-display">5.0Hz</span></label>
+                <input type="range" id="vibrato-freq-slider" min="0.5" max="20.0" value="5.0" step="0.1">
+              </div>
+              <div class="slider-group">
+                <label for="vibrato-int-slider">Intensity: <span id="vibrato-int-value" class="value-display">0%</span></label>
+                <input type="range" id="vibrato-int-slider" min="0" max="1.0" value="0" step="0.01">
+              </div>
+            </div>
+
+            <div class="effect-card">
+              <h4><i class="ph-bold ph-lightning"></i> Distortion</h4>
+              <div class="slider-group">
+                <label for="distortion-slider">Amount: <span id="distortion-value" class="value-display">0%</span></label>
+                <input type="range" id="distortion-slider" min="0" max="1.0" value="0" step="0.01">
+              </div>
+            </div>
+
+            <div class="effect-card">
+              <h4><i class="ph-bold ph-music-notes"></i> Chorus</h4>
+              <div class="slider-group">
+                <label for="chorus-depth-slider">Depth: <span id="chorus-depth-value" class="value-display">0%</span></label>
+                <input type="range" id="chorus-depth-slider" min="0" max="1.0" value="0" step="0.01">
+              </div>
+              <div class="slider-group">
+                <label for="chorus-mix-slider">Mix: <span id="chorus-mix-value" class="value-display">0%</span></label>
+                <input type="range" id="chorus-mix-slider" min="0" max="1.0" value="0" step="0.01">
+              </div>
+            </div>
+
+            <div class="effect-card">
+              <h4><i class="ph-bold ph-broadcast"></i> Reverb</h4>
+              <div class="slider-group">
+                <label for="reverb-decay-slider">Decay: <span id="reverb-decay-value" class="value-display">0%</span></label>
+                <input type="range" id="reverb-decay-slider" min="0" max="1.0" value="0" step="0.01">
+              </div>
+              <div class="slider-group">
+                <label for="reverb-mix-slider">Mix: <span id="reverb-mix-value" class="value-display">0%</span></label>
+                <input type="range" id="reverb-mix-slider" min="0" max="1.0" value="0" step="0.01">
+              </div>
+            </div>
+
+          </div>
+
+          <div class="reset-section">
+            <button id="reset-effects-btn" class="reset-btn">
+              <i class="ph-bold ph-arrow-counter-clockwise"></i> Reset All Effects
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ==========================================
+       PASSWORD CHANGE MODAL
+  ========================================== -->
+  <div id="password-modal-overlay" class="settings-overlay" style="display: none;">
+    <div class="settings-modal password-modal">
+      <div class="settings-header">
+        <i class="ph-bold ph-lock"></i>
+        Room Password
+        <button id="password-modal-close" class="settings-close-btn" title="Close">
+          <i class="ph-bold ph-x"></i>
+        </button>
+      </div>
+      <div class="settings-body">
+        <div class="settings-section-title">Change Password</div>
+        <div class="password-change-row">
+          <input type="password" id="new-password-input" class="room-input password-change-input" placeholder="New password (leave empty to remove)">
+          <button id="password-modal-confirm" class="confirm-btn">Apply</button>
+        </div>
+        <div class="settings-note">
+          <i class="ph-fill ph-info"></i>
+          Current members stay in the room. New joiners will need the updated password.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       AUDIO SETTINGS MODAL
+  ========================================== -->
+  <div id="audio-settings-overlay" class="settings-overlay" style="display: none;">
+    <div class="settings-modal">
+      <div class="settings-header">
+        <i class="ph-bold ph-speaker-high"></i>
+        Audio Settings
+        <button id="audio-settings-close" class="settings-close-btn" title="Close">
+          <i class="ph-bold ph-x"></i>
+        </button>
+      </div>
+      <div class="settings-body">
+
+        <div class="settings-section-title">Microphone Processing</div>
+
+        <div class="settings-row">
+          <div class="settings-info">
+            <span class="settings-label">Noise Suppression</span>
+            <span class="settings-desc">Reduces background noise — fans, keyboard, room echo</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="setting-noise-suppression">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-info">
+            <span class="settings-label">Echo Cancellation</span>
+            <span class="settings-desc">Prevents acoustic feedback, useful without headphones</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="setting-echo-cancellation">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-info">
+            <span class="settings-label">Auto Gain Control</span>
+            <span class="settings-desc">Automatically adjusts mic sensitivity (disable if using Mic Gain knob)</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="setting-auto-gain">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="settings-note">
+          <i class="ph-fill ph-info"></i>
+          Changes restart the microphone briefly — normal to hear a short silence.
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       FILE VIEWER MODAL
+  ========================================== -->
+  <div id="file-viewer-overlay" class="settings-overlay" style="display: none;">
+    <div class="settings-modal file-viewer-modal">
+      <div class="settings-header">
+        <span id="file-viewer-title" class="file-viewer-title-text"></span>
+        <button id="file-viewer-save" class="copy-btn file-viewer-save-btn" title="Save to disk">Save</button>
+        <button id="file-viewer-close" class="settings-close-btn" title="Close">
+          <i class="ph-bold ph-x"></i>
+        </button>
+      </div>
+      <div id="file-viewer-content" class="file-viewer-content"></div>
+    </div>
+  </div>
+
+  <script src="ice-config.js"></script>
+  <script src="peerjs.min.js"></script>
+  <script type="module" src="renderer.js"></script>
+</body>
+</html>

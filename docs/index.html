@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IceVox - Real-time Voice Effects & P2P Chat</title>
+    
+    <!-- Google Fonts: Cinzel & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
+    <!-- Meta/SEO Tags -->
+    <meta name="description" content="IceVox is a free P2P voice chat application with real-time effects like Orc, Elf, Demon, and Wizard voices.">
+    
+    <!-- Analytics: GoatCounter -->
+    <script data-goatcounter="https://bjorehag.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</head>
+<body>
+
+    <!-- Ambient Background Elements -->
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar container">
+        <div class="brand-container">
+            <img src="assets/icevox_logo_1.png" alt="IceVox Logo" class="brand-logo">
+            <span class="brand">IceVox</span>
+        </div>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#donate" onclick="event.preventDefault(); document.getElementById('donate-modal').showModal();">Donate</a>
+            <a href="mailto:icevoxsupport@gmail.com">Contact</a>
+            <a href="#download" class="nav-btn">Download</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero container reveal">
+        <img src="assets/icevox_logo_1.png" alt="IceVox Logo Large" class="hero-logo floating">
+        <h1 class="gradient-text">IceVox</h1>
+        <p class="subtitle">Real-time voice effects and P2P voice chat for gaming and roleplay.</p>
+        <a href="#download" class="btn btn-glow">Download for Windows</a>
+        <p class="small-text">Free — Windows 10/11</p>
+    </header>
+
+    <!-- Pro Tip Loopback Banner -->
+    <section class="pro-tip container reveal">
+        <div class="glass-banner">
+            <span class="pro-badge">PRO TIP</span>
+            <p><strong>Loopback is fixed at 100% by default</strong> so you can instantly hear your magnificent new voice. Make sure to turn it down before joining a room or another voice app to avoid echoing back to your friends!</p>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features container reveal">
+        <h2 class="gradient-text">Features</h2>
+        <div class="features-grid">
+            <div class="feature-card glass-card">
+                <img src="assets/icevox_microphone_1.png" alt="Voice Effects" class="feature-icon">
+                <div class="feature-content">
+                    <h3>Voice Effects</h3>
+                    <p>Pitch shift, echo, tremolo, vibrato, distortion, chorus, and reverb — 100% customizable.</p>
+                </div>
+            </div>
+            <div class="feature-card glass-card">
+                <img src="assets/icevox_orc_1.png" alt="Character Presets" class="feature-icon">
+                <div class="feature-content">
+                    <h3>Character Presets</h3>
+                    <p>10 unique character presets + 3 empty slots for your own custom creations.</p>
+                </div>
+            </div>
+            <div class="feature-card glass-card">
+                <img src="assets/icevox_create_room_1.png" alt="P2P Voice Chat" class="feature-icon">
+                <div class="feature-content">
+                    <h3>P2P Voice Chat</h3>
+                    <p>Create a room, share the link, and talk. Serverless, zero latency, up to 6 participants.</p>
+                </div>
+            </div>
+            <div class="feature-card glass-card">
+                <img src="assets/icevox_video_1.png" alt="Video Chat" class="feature-icon">
+                <div class="feature-content">
+                    <h3>Opt-in Video Chat</h3>
+                    <p>Decoupled P2P video calls via a separate window with adaptive quality.</p>
+                </div>
+            </div>
+            <div class="feature-card glass-card spotlight-card" style="grid-column: 1 / -1; max-width: 800px; margin: 0 auto; width: 100%;">
+                <img src="assets/icevox_speakers_1.png" alt="System Wide Voice Changer" class="feature-icon">
+                <div class="feature-content">
+                    <h3 class="gradient-text">System-Wide Voice Changer</h3>
+                    <p>Routing your voice with VB-Cable turns IceVox into a real-time voice changer for any game, virtual tabletop, or voice chat application. Unleash your inner Orc across the entire internet.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Presets Section -->
+    <section class="presets container reveal">
+        <h2 class="gradient-text">The Voices</h2>
+        <div class="presets-row">
+            <div class="preset-item"><img src="assets/icevox_human_1.png" alt="Human"><span class="preset-name">Human</span></div>
+            <div class="preset-item"><img src="assets/icevox_orc_1.png" alt="Orc"><span class="preset-name">Orc</span></div>
+            <div class="preset-item"><img src="assets/icevox_elf_v2_1.png" alt="Elf"><span class="preset-name">Elf</span></div>
+            <div class="preset-item"><img src="assets/icevox_wizard_1.png" alt="Wizard"><span class="preset-name">Wizard</span></div>
+            <div class="preset-item"><img src="assets/icevox_demon_1.png" alt="Demon"><span class="preset-name">Demon</span></div>
+            <div class="preset-item"><img src="assets/icevox_goblin_v2_1.png" alt="Goblin"><span class="preset-name">Goblin</span></div>
+            <div class="preset-item"><img src="assets/icevox_ghost_1.png" alt="Ghost"><span class="preset-name">Ghost</span></div>
+            <div class="preset-item"><img src="assets/icevox_whisp_1.png" alt="Whisp"><span class="preset-name">Whisp</span></div>
+            <div class="preset-item"><img src="assets/icevox_siren_1.png" alt="Siren"><span class="preset-name">Siren</span></div>
+            <div class="preset-item"><img src="assets/icevox_elemental_1.png" alt="Ice Elemental"><span class="preset-name">Elemental</span></div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" class="download container reveal">
+        <h2 class="gradient-text">Download IceVox</h2>
+        <div class="download-card glass-card">
+            <p class="subtitle" style="margin-bottom: 5px;">IceVox Setup · Windows 10/11</p>
+            
+            <a href="#" class="btn btn-glow disabled" onclick="event.preventDefault();">Download link coming soon</a>
+            
+            <p class="smartscreen-warning">
+                <strong>Note:</strong> Windows SmartScreen may warn about unsigned software —<br>
+                this is normal for indie apps.<br>
+                Click <em>'More info'</em> → <em>'Run anyway'</em> to proceed.
+            </p>
+        </div>
+    </section>
+
+    <!-- Donate Modal -->
+    <dialog id="donate-modal" class="donate-modal">
+        <div class="donate-modal-content glass-card">
+            <button class="modal-close" onclick="document.getElementById('donate-modal').close();">&times;</button>
+            <img src="assets/icevox_logo_1.png" alt="Icevox Logo" class="modal-logo">
+            <h2 class="gradient-text" style="margin-bottom: 0.5rem; font-size: 1.8rem;">Donations Appreciated</h2>
+            <p class="subtitle" style="margin-bottom: 1.5rem; font-size: 1rem;">IceVox is built and maintained by a solo developer. Donate for better cat food. 🐈‍⬛</p>
+            
+            <div class="donate-buttons">
+                <a href="https://ko-fi.com/icevox" target="_blank" class="btn-donate btn-kofi">
+                    <span style="font-size: 1.2rem;">☕</span> Donate on Ko-fi
+                </a>
+                <a href="#" class="btn-donate btn-github disabled" onclick="event.preventDefault();" title="GitHub Sponsors pending approval">
+                    <span style="font-size: 1.2rem;">💖</span> GitHub Sponsors (Soon)
+                </a>
+            </div>
+            
+            <p class="small-text" style="margin-top: 2rem;">Thank you! Your support makes a difference.</p>
+        </div>
+    </dialog>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p style="margin-bottom: 5px;">Questions or feedback? <a href="mailto:icevoxsupport@gmail.com" style="text-decoration: underline; color: var(--accent-cyan);">icevoxsupport@gmail.com</a></p>
+            <p>© 2026 Bjorehag · IceVox · MIT License</p>
+        </div>
+    </footer>
+
+    <script>
+        // Modal logic
+        const modal = document.getElementById('donate-modal');
+        modal.addEventListener('click', (e) => {
+            const dialogDimensions = modal.getBoundingClientRect();
+            if (
+                e.clientX < dialogDimensions.left ||
+                e.clientX > dialogDimensions.right ||
+                e.clientY < dialogDimensions.top ||
+                e.clientY > dialogDimensions.bottom
+            ) {
+                modal.close();
+            }
+        });
+
+        // Scroll Reveal Animation (Intersection Observer)
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

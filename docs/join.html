@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joining IceVox...</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
+    <meta name="description" content="Join an IceVox room">
+</head>
+<body>
+
+    <div class="join-container">
+        <div class="join-card">
+            <img src="assets/icevox_logo_1.png" alt="IceVox Logo" class="join-logo">
+            
+            <h2>Joining room <br><span id="room-id-display" class="room-id-display">...</span></h2>
+            
+            <div class="join-spinner"></div>
+            
+            <p class="subtitle" style="font-size: 1rem; margin-bottom: 0;">Opening IceVox...</p>
+            <p class="small-text">If nothing happens, download the app first.</p>
+            
+            <div id="join-action-area" class="join-action-area">
+                <span class="small-text">Don't have IceVox?</span>
+                <a href="index.html#download" class="btn" style="display: block; width: 100%; margin-bottom: 20px;">Download IceVox</a>
+                
+                <span class="small-text">Already have IceVox? Make sure it's running, then click:</span>
+                <a href="#" id="open-btn" class="btn btn-secondary" style="display: block; width: 100%;">Open in IceVox</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script that handles protocol redirection -->
+    <script src="join.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; font-src 'self' https://unpkg.com https://cdn.jsdelivr.net; img-src 'self'; media-src 'self' mediastream:; connect-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self';">
+  <title>IceVox — Video</title>
+  <link rel="stylesheet" href="video-styles.css">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script>
+    // Apply saved theme before render
+    (function() {
+      var t = localStorage.getItem('icevox-theme') || 'midnight';
+      if (!['midnight', 'arctic', 'slate'].includes(t)) t = 'midnight';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+</head>
+<body>
+
+  <div class="video-container" id="video-grid">
+    <!-- Local preview -->
+    <div class="video-cell local-preview" id="local-cell">
+      <video id="local-video" autoplay muted playsinline></video>
+      <div class="video-label">You</div>
+      <div class="video-no-camera" id="local-no-camera">
+        <i class="ph-bold ph-video-camera-slash"></i>
+        <span>Camera off</span>
+      </div>
+    </div>
+    <!-- Remote video cells added dynamically by video-renderer.js -->
+  </div>
+
+  <!-- Bottom control bar -->
+  <div class="video-controls" id="video-controls">
+    <button id="camera-toggle" class="video-ctrl-btn" title="Toggle camera">
+      <i class="ph-bold ph-video-camera" id="camera-icon-on" style="display:none"></i>
+      <i class="ph-bold ph-video-camera-slash" id="camera-icon-off"></i>
+    </button>
+    <button id="layout-toggle" class="video-ctrl-btn" title="Toggle layout (Grid / Focus)">
+      <i class="ph-bold ph-grid-four"></i>
+    </button>
+    <button id="settings-toggle" class="video-ctrl-btn" title="Video settings">
+      <i class="ph-bold ph-gear"></i>
+    </button>
+    <button id="close-btn" class="video-ctrl-btn danger" title="Close video">
+      <i class="ph-bold ph-x"></i>
+    </button>
+  </div>
+
+  <!-- Settings panel (slide-in) -->
+  <div class="settings-panel" id="settings-panel" style="display: none;">
+    <div class="settings-panel-header">
+      <span>Video Settings</span>
+      <button id="settings-close" class="settings-panel-close"><i class="ph-bold ph-x"></i></button>
+    </div>
+    <div class="settings-panel-body">
+      <label class="settings-label">Camera</label>
+      <select id="camera-select" class="settings-select">
+        <option value="">Default</option>
+      </select>
+      <div class="settings-info" id="camera-info">Select which camera to use</div>
+
+      <label class="settings-label" style="margin-top: 12px;">Quality</label>
+      <select id="quality-select" class="settings-select">
+        <option value="auto">Auto (adaptive)</option>
+        <option value="high">High (720p)</option>
+        <option value="medium">Medium (480p)</option>
+        <option value="low">Low (360p)</option>
+      </select>
+      <div class="settings-info" id="quality-info">Auto: adapts based on peer count</div>
+    </div>
+  </div>
+
+  <script src="video-renderer.js"></script>
+</body>
+</html>

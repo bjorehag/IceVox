@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- Redirect hack for GitHub Pages -->
+<script>
+  // GitHub Pages 404 hack: redirect /join/ROOMID → /join.html?room=ROOMID
+  const path = window.location.pathname;
+  
+  // Match path ending with /join/[ID]
+  const joinMatch = path.match(/\/join\/(.+)$/);
+  
+  if (joinMatch) {
+    // Redirect passing the matched room ID to join.html as a query param
+    // Compute base URL considering potential GitHub Pages repo subdirectories
+    let newPath = path.substring(0, joinMatch.index) + '/join.html?room=' + joinMatch[1];
+    window.location.replace(newPath);
+  } else {
+    // Other 404 paths route back to the index
+    window.location.replace('/');
+  }
+</script>
+</head>
+<body>
+    Redirecting...
+</body>
+</html>

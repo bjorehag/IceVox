@@ -1,0 +1,21 @@
+node_modules/
+dist/
+build/*
+!build/icon.ico
+*.log
+.env
+
+# AI tool configs (not public yet)
+.agents/
+.continue/
+CLAUDE.md
+BETA_FIXLIST.md
+GITHUB_PREP.md
+build-instructions/
+
+# Stale artifact from Windows shell redirect
+nul
+
+# Unused empty directories
+srcrenderer/
+website/
