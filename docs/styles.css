@@ -646,6 +646,10 @@ footer {
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(120, 180, 255, 0.35);
     box-shadow: none;
+    /* .btn's base text color is --bg-deep (near-black, meant for the bright
+       cyan primary button) — unreadable on this dark background. Use the
+       site's soft off-white body text color instead. */
+    color: var(--text-primary);
 }
 .btn-secondary:hover {
     background: rgba(120, 180, 255, 0.15);
