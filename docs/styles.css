@@ -600,3 +600,53 @@ footer {
   .pro-tip .glass-banner { flex-direction: column; text-align: center; }
   .nav-links { display: none; } /* Could add a hamburger menu in an actual app, but hidden for simple lander */
 }
+
+/* === Multi-platform download section (v0.3.1) === */
+.hero-buttons {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.platform-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.platform-grid .download-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+.platform-grid .download-card h3 { margin: 0; }
+.platform-grid .download-card .btn { margin-top: 6px; }
+
+.platform-icon { font-size: 2.2rem; margin: 0; }
+.platform-sub { font-size: 0.95rem; margin: 0 0 4px; }
+
+.beta-tag {
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    vertical-align: middle;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: rgba(100, 180, 255, 0.15);
+    border: 1px solid rgba(100, 180, 255, 0.4);
+    color: #9fd0ff;
+}
+
+/* Secondary button (used by hero + join page) */
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(120, 180, 255, 0.35);
+    box-shadow: none;
+}
+.btn-secondary:hover {
+    background: rgba(120, 180, 255, 0.15);
+}

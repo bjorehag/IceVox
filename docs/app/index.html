@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' blob: data:; media-src 'self' blob: mediastream:; connect-src 'self' wss://0.peerjs.com https://0.peerjs.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self';">
+  <meta name="theme-color" content="#020304">
+  <meta name="description" content="IceVox — real-time voice effects and P2P voice chat for gaming and roleplay. Runs entirely in your browser.">
+  <title>IceVox</title>
+  <link rel="icon" href="assets/icons/icevox_logo_1.ico">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/pwa/icon-192.png">
+  <link rel="stylesheet" href="css/styles.css">
+  <script>
+    // Apply saved theme before render to avoid flash
+    (function() {
+      var t = localStorage.getItem('icevox-theme') || 'midnight';
+      if (!['midnight', 'arctic', 'slate'].includes(t)) t = 'midnight';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- Inline SVG icon sprite (no CDN — app must work offline) -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3z"/><path d="M5 11a7 7 0 0 0 14 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="18" x2="12" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-mic-off" viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 1 3 3v6a3 3 0 0 1-.35 1.4L9 7.75V6a3 3 0 0 1 3-3z"/><path d="M9 11.9V12a3 3 0 0 0 4.6 2.54l1.5 1.5A5 5 0 0 1 7 12v-1z"/><path d="M5 11a7 7 0 0 0 11.6 5.26l1.45 1.45A9 9 0 0 1 12 20a9 9 0 0 1-7-9z" opacity="0"/><path d="M5 11a7 7 0 0 0 11.36 5.5l1.43 1.42A8.94 8.94 0 0 1 12 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="18" x2="12" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="4" y1="4" x2="20" y2="20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-speaker" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-speaker-off" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><line x1="16" y1="9" x2="22" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="22" y1="9" x2="16" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm8.94 3-1.83-.32a7 7 0 0 0-.7-1.69l1.07-1.52-1.95-1.95-1.52 1.07a7 7 0 0 0-1.69-.7L14 4.06h-4l-.32 1.83a7 7 0 0 0-1.69.7L6.47 5.52 4.52 7.47l1.07 1.52a7 7 0 0 0-.7 1.69L3.06 11v2l1.83.32a7 7 0 0 0 .7 1.69l-1.07 1.52 1.95 1.95 1.52-1.07a7 7 0 0 0 1.69.7L10 19.94h4l.32-1.83a7 7 0 0 0 1.69-.7l1.52 1.07 1.95-1.95-1.07-1.52a7 7 0 0 0 .7-1.69l1.83-.32v-2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.2 0-1.1.9-2 2-2h2.4A4.6 4.6 0 0 0 22 10c-.4-4-4.8-7-10-7z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="7.5" cy="11.5" r="1.3"/><circle cx="10.5" cy="7.5" r="1.3"/><circle cx="15" cy="7.5" r="1.3"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07l-1.4 1.4M14 10a5 5 0 0 0-7.07 0L4.1 12.83a5 5 0 0 0 7.07 7.07l1.4-1.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="15" r="1.6"/></symbol>
+    <symbol id="i-leave" viewBox="0 0 24 24"><path d="M14 4h-8v16h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 12h11m0 0-3.5-3.5M21 12l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-enter" viewBox="0 0 24 24"><path d="M10 4h10v16H10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 12h11m0 0-3.5-3.5M14 12l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M3 11.5 21 3l-6.5 18-3-7.5L3 11.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><path d="M20 11.5 12.5 19a5 5 0 0 1-7-7l8-8a3.5 3.5 0 0 1 5 5l-8 8a2 2 0 0 1-2.8-2.8l7-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-crown" viewBox="0 0 24 24"><path d="M4 18h16l1-9-5 3.5L12 6 8 12.5 3 9l1 9z" fill="currentColor"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M5 5v5m0 4v5m7-14v2m0 4v8m7-14v8m0 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="5" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="9" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="19" cy="15" r="2" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 19a6 6 0 0 1 12 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 5.5a3.5 3.5 0 0 1 0 6.5M21 19a6 6 0 0 0-4.5-5.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4V5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-ear" viewBox="0 0 24 24"><path d="M6 10a6 6 0 1 1 12 0c0 2.5-1.5 3.5-2.7 4.7-.9.9-1.3 1.8-1.5 3a3 3 0 0 1-5.8-.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M9.5 10a2.5 2.5 0 0 1 5 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.5" r="1.3"/></symbol>
+    <symbol id="i-cam" viewBox="0 0 24 24"><rect x="3" y="7" width="13" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 10.5 21 8v8l-5-2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cam-off" viewBox="0 0 24 24"><rect x="3" y="7" width="13" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 10.5 21 8v8l-5-2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><line x1="4" y1="4" x2="20" y2="20" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-flip" viewBox="0 0 24 24"><path d="M4 9a8 8 0 0 1 14-3.5M20 15a8 8 0 0 1-14 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M18 2v4h-4M6 22v-4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-minimize" viewBox="0 0 24 24"><path d="M5 15h4v4M19 9h-4V5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 15 4 20M15 9l5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 2 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M4 4v6h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <!-- ==========================================
+       START OVERLAY (mobile: audio needs a tap)
+  ========================================== -->
+  <div id="start-overlay" class="start-overlay">
+    <img src="assets/icons/icevox_logo_1.ico" alt="IceVox" class="start-logo" data-icon="icevox_logo">
+    <h1 class="start-title">IceVox</h1>
+    <p class="start-sub">Voice effects &amp; P2P voice chat</p>
+    <button id="start-audio-btn" class="start-btn">
+      <svg class="icon"><use href="#i-mic"/></svg>
+      Start audio
+    </button>
+    <p class="start-hint">Microphone permission will be requested.<br>Headphones recommended.</p>
+    <p id="start-room-hint" class="start-hint start-room-hint" style="display:none;"></p>
+    <p id="start-error" class="start-error" style="display:none;"></p>
+  </div>
+
+  <!-- ==========================================
+       APP SHELL
+  ========================================== -->
+  <div id="app" class="app" style="display:none;">
+
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="header-left" id="about-trigger">
+        <img src="assets/icons/icevox_logo_1.ico" alt="" class="header-logo" data-icon="icevox_logo">
+        <span class="header-title">IceVox</span>
+      </div>
+      <div class="header-status" id="header-status"></div>
+      <div class="header-actions">
+        <button id="mute-send-btn" class="hdr-btn" title="Mute microphone">
+          <svg class="icon icon-unmuted"><use href="#i-mic"/></svg>
+          <svg class="icon icon-muted"><use href="#i-mic-off"/></svg>
+        </button>
+        <button id="output-mute-btn" class="hdr-btn" title="Mute all sound">
+          <svg class="icon icon-unmuted"><use href="#i-speaker"/></svg>
+          <svg class="icon icon-muted"><use href="#i-speaker-off"/></svg>
+        </button>
+        <button id="theme-toggle-btn" class="hdr-btn" title="Theme">
+          <svg class="icon"><use href="#i-palette"/></svg>
+        </button>
+        <button id="audio-settings-btn" class="hdr-btn" title="Audio settings">
+          <svg class="icon"><use href="#i-gear"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Views: tabbed on narrow screens, side-by-side columns on wide screens -->
+    <div class="views-container">
+
+    <!-- ==========================================
+         VIEW: EFFECTS
+    ========================================== -->
+    <main id="view-effects" class="view view-active">
+
+      <div class="quick-controls">
+        <div class="quick-slider-card">
+          <div class="qc-label">Pitch <span id="basic-pitch-value" class="value-display">×1.00</span></div>
+          <input type="range" id="basic-pitch-slider" min="0.5" max="2.0" value="1.0" step="0.01">
+        </div>
+        <div class="quick-slider-card">
+          <div class="qc-label">Mic Boost <span id="mic-gain-value" class="value-display">125%</span></div>
+          <input type="range" id="mic-gain-input" min="0" max="200" value="125">
+        </div>
+      </div>
+
+      <div class="monitor-row">
+        <div class="monitor-info">
+          <svg class="icon"><use href="#i-ear"/></svg>
+          <div>
+            <span class="monitor-label">Hear myself</span>
+            <span class="monitor-desc">Use headphones — speaker causes feedback</span>
+          </div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="monitor-toggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="monitor-volume-row" id="monitor-volume-row" style="display:none;">
+        <div class="qc-label">Loopback volume <span id="popup-volume-value" class="value-display">100%</span></div>
+        <input type="range" id="popup-monitor-volume" min="0" max="200" value="100">
+      </div>
+
+      <h2 class="section-title">Presets</h2>
+      <div class="preset-grid" id="preset-grid">
+        <button class="preset-btn" data-preset="0"><img src="assets/icons/human_1.ico" data-icon="human" alt="" class="preset-icon-img"><span class="preset-name">Human</span></button>
+        <button class="preset-btn" data-preset="1"><img src="assets/icons/orc_1.ico" data-icon="orc" alt="" class="preset-icon-img"><span class="preset-name">Orc</span></button>
+        <button class="preset-btn" data-preset="2"><img src="assets/icons/elf_1.ico" data-icon="elf" alt="" class="preset-icon-img"><span class="preset-name">Elf</span></button>
+        <button class="preset-btn" data-preset="3"><img src="assets/icons/wizard_1.ico" data-icon="wizard" alt="" class="preset-icon-img"><span class="preset-name">Wizard</span></button>
+        <button class="preset-btn" data-preset="4"><img src="assets/icons/demon_1.ico" data-icon="demon" alt="" class="preset-icon-img"><span class="preset-name">Demon</span></button>
+        <button class="preset-btn" data-preset="5"><img src="assets/icons/goblin_1.ico" data-icon="goblin" alt="" class="preset-icon-img"><span class="preset-name">Goblin</span></button>
+        <button class="preset-btn" data-preset="6"><img src="assets/icons/ghost_1.ico" data-icon="ghost" alt="" class="preset-icon-img"><span class="preset-name">Ghost</span></button>
+        <button class="preset-btn" data-preset="7"><img src="assets/icons/whisp_1.ico" data-icon="whisp" alt="" class="preset-icon-img"><span class="preset-name">Whisp</span></button>
+        <button class="preset-btn" data-preset="8"><img src="assets/icons/siren_1.ico" data-icon="siren" alt="" class="preset-icon-img"><span class="preset-name">Siren</span></button>
+        <button class="preset-btn" data-preset="9"><img src="assets/icons/ice_elemental_1.ico" data-icon="ice_elemental" alt="" class="preset-icon-img"><span class="preset-name">Ice Elem.</span></button>
+      </div>
+
+      <h2 class="section-title">My Presets</h2>
+      <p class="preset-save-hint">Click/tap empty slot to save current settings &bull; Hold to delete</p>
+      <div class="preset-grid saved-grid">
+        <button class="preset-btn saved-slot" id="saved-slot-0"></button>
+        <button class="preset-btn saved-slot" id="saved-slot-1"></button>
+        <button class="preset-btn saved-slot" id="saved-slot-2"></button>
+      </div>
+
+      <button id="advanced-toggle" class="advanced-toggle">
+        <svg class="icon"><use href="#i-sliders"/></svg>
+        <span>Advanced effects</span>
+        <span class="chevron" id="advanced-chevron">▾</span>
+      </button>
+
+      <div id="advanced-panel" class="advanced-panel" style="display:none;">
+
+        <div class="effect-card">
+          <h4>Pitch Shifter</h4>
+          <div class="slider-group">
+            <label>Amount <span id="pitch-value" class="value-display">×1.00</span></label>
+            <input type="range" id="pitch-slider" min="0.5" max="2.0" value="1.0" step="0.01">
+          </div>
+        </div>
+
+        <div class="effect-card">
+          <h4>Echo</h4>
+          <div class="slider-group">
+            <label>Delay <span id="echo-delay-value" class="value-display">0ms</span></label>
+            <input type="range" id="echo-delay-slider" min="0" max="1.0" value="0" step="0.01">
+          </div>
+          <div class="slider-group">
+            <label>Feedback <span id="echo-feedback-value" class="value-display">0%</span></label>
+            <input type="range" id="echo-feedback-slider" min="0" max="0.85" value="0" step="0.01">
+          </div>
+        </div>
+
+        <div class="effect-card">
+          <h4>Tremolo</h4>
+          <div class="slider-group">
+            <label>Frequency <span id="tremolo-freq-value" class="value-display">5.0Hz</span></label>
+            <input type="range" id="tremolo-freq-slider" min="0.5" max="20.0" value="5.0" step="0.1">
+          </div>
+          <div class="slider-group">
+            <label>Intensity <span id="tremolo-int-value" class="value-display">0%</span></label>
+            <input type="range" id="tremolo-int-slider" min="0" max="1.0" value="0" step="0.01">
+          </div>
+        </div>
+
+        <div class="effect-card">
+          <h4>Vibrato</h4>
+          <div class="slider-group">
+            <label>Frequency <span id="vibrato-freq-value" class="value-display">5.0Hz</span></label>
+            <input type="range" id="vibrato-freq-slider" min="0.5" max="20.0" value="5.0" step="0.1">
+          </div>
+          <div class="slider-group">
+            <label>Intensity <span id="vibrato-int-value" class="value-display">0%</span></label>
+            <input type="range" id="vibrato-int-slider" min="0" max="1.0" value="0" step="0.01">
+          </div>
+        </div>
+
+        <div class="effect-card">
+          <h4>Distortion</h4>
+          <div class="slider-group">
+            <label>Amount <span id="distortion-value" class="value-display">0%</span></label>
+            <input type="range" id="distortion-slider" min="0" max="1.0" value="0" step="0.01">
+          </div>
+        </div>
+
+        <div class="effect-card">
+          <h4>Chorus</h4>
+          <div class="slider-group">
+            <label>Depth <span id="chorus-depth-value" class="value-display">0%</span></label>
+            <input type="range" id="chorus-depth-slider" min="0" max="1.0" value="0" step="0.01">
+          </div>
+          <div class="slider-group">
+            <label>Mix <span id="chorus-mix-value" class="value-display">0%</span></label>
+            <input type="range" id="chorus-mix-slider" min="0" max="1.0" value="0" step="0.01">
+          </div>
+        </div>
+
+        <div class="effect-card">
+          <h4>Reverb</h4>
+          <div class="slider-group">
+            <label>Decay <span id="reverb-decay-value" class="value-display">0%</span></label>
+            <input type="range" id="reverb-decay-slider" min="0" max="1.0" value="0" step="0.01">
+          </div>
+          <div class="slider-group">
+            <label>Mix <span id="reverb-mix-value" class="value-display">0%</span></label>
+            <input type="range" id="reverb-mix-slider" min="0" max="1.0" value="0" step="0.01">
+          </div>
+        </div>
+
+        <button id="reset-effects-btn" class="reset-btn">
+          <svg class="icon"><use href="#i-reset"/></svg> Reset all effects
+        </button>
+      </div>
+
+    </main>
+
+    <!-- ==========================================
+         VIEW: ROOM
+    ========================================== -->
+    <main id="view-room" class="view">
+
+      <!-- Disconnected -->
+      <div id="connection-view-disconnected" class="connection-view">
+        <h2 class="section-title">Voice Room</h2>
+
+        <div class="room-card">
+          <button id="create-room-btn" class="big-btn primary">
+            <svg class="icon"><use href="#i-plus"/></svg>
+            <span id="create-room-label">Create room</span>
+          </button>
+          <div class="room-or">— or —</div>
+          <input type="text" id="room-id-input" class="room-input" placeholder="Room ID or invite link…" autocapitalize="none" autocorrect="off" spellcheck="false">
+          <button id="join-room-btn" class="big-btn" disabled>
+            <svg class="icon"><use href="#i-enter"/></svg>
+            <span id="join-room-label">Join room</span>
+          </button>
+          <div class="password-row">
+            <svg class="icon dim"><use href="#i-lock"/></svg>
+            <input type="password" id="room-password-input" class="room-input" placeholder="Password (optional)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Waiting (host, no peers yet) -->
+      <div id="connection-view-waiting" class="connection-view" style="display:none;">
+        <h2 class="section-title">Room open</h2>
+        <div class="room-card">
+          <div class="room-id-display" id="room-id-display"></div>
+          <div class="waiting-hint">Waiting for others to join…</div>
+          <button id="copy-room-id-btn" class="big-btn primary">
+            <svg class="icon"><use href="#i-link"/></svg> Share invite
+          </button>
+          <div id="copy-feedback" class="copy-feedback" style="display:none;">Link copied!</div>
+          <div class="room-btn-row">
+            <button id="video-btn-waiting" class="big-btn half">
+              <svg class="icon"><use href="#i-cam"/></svg> Video
+              <span class="video-indicator" style="display:none;"></span>
+            </button>
+          </div>
+          <div class="room-btn-row">
+            <button id="lock-room-btn-waiting" class="big-btn half">
+              <svg class="icon"><use href="#i-lock"/></svg> Lock
+            </button>
+            <button id="leave-room-btn-waiting" class="big-btn half danger">
+              <svg class="icon"><use href="#i-leave"/></svg> Leave
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Connected -->
+      <div id="connection-view-connected" class="connection-view" style="display:none;">
+        <div class="connected-header">
+          <span class="room-id-display small-id" id="room-id-connected"></span>
+          <span id="user-role" class="role-badge"></span>
+        </div>
+        <div class="room-btn-row">
+          <button id="invite-btn-connected" class="big-btn half">
+            <svg class="icon"><use href="#i-link"/></svg> Invite
+          </button>
+          <button id="video-btn-connected" class="big-btn half">
+            <svg class="icon"><use href="#i-cam"/></svg> Video
+            <span class="video-indicator" style="display:none;"></span>
+          </button>
+          <button id="lock-room-btn-connected" class="big-btn half" style="display:none;">
+            <svg class="icon"><use href="#i-lock"/></svg> Lock
+          </button>
+          <button id="leave-room-btn-connected" class="big-btn half danger">
+            <svg class="icon"><use href="#i-leave"/></svg> Leave
+          </button>
+        </div>
+
+        <div class="participant-header-row">
+          <span id="participant-count" class="participant-header"></span>
+          <input type="text" id="displayNameInput" class="room-input name-input" placeholder="Your name" maxlength="30">
+        </div>
+      </div>
+
+      <div id="connection-error" class="connection-error" style="display:none;"></div>
+
+      <div id="participantList" class="participant-list">
+        <div class="empty-state">
+          <img src="assets/generated_icons/icevox_no_connections_placeholder_1.png" data-icon-png="icevox_no_connections_placeholder" class="placeholder-img" alt=""><br>
+          No connections
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ==========================================
+         VIEW: CHAT
+    ========================================== -->
+    <main id="view-chat" class="view">
+      <div class="chat-messages" id="chatMessages">
+        <div class="empty-state">
+          <img src="assets/generated_icons/icevox_join_chat_placeholder_1.png" data-icon-png="icevox_join_chat_placeholder" class="placeholder-img" alt=""><br>
+          Join a room to chat
+        </div>
+      </div>
+      <div class="chat-input-row">
+        <button id="chat-attach-btn" class="chat-icon-btn" disabled title="Share file">
+          <svg class="icon"><use href="#i-clip"/></svg>
+        </button>
+        <input type="file" id="chat-file-input" style="display:none;">
+        <input type="text" id="chatInput" placeholder="Connect to chat…" maxlength="500" disabled>
+        <button id="chatSendBtn" class="chat-icon-btn send" disabled>
+          <svg class="icon"><use href="#i-send"/></svg>
+        </button>
+      </div>
+    </main>
+
+    </div><!-- /.views-container -->
+
+    <!-- ==========================================
+         BOTTOM TAB BAR (hidden on wide screens)
+    ========================================== -->
+    <nav class="tab-bar">
+      <button class="tab-btn tab-active" data-view="effects">
+        <svg class="icon"><use href="#i-sliders"/></svg>
+        <span>Effects</span>
+      </button>
+      <button class="tab-btn" data-view="room">
+        <svg class="icon"><use href="#i-users"/></svg>
+        <span>Room</span>
+        <span class="tab-dot" id="room-dot" style="display:none;"></span>
+      </button>
+      <button class="tab-btn" data-view="chat">
+        <svg class="icon"><use href="#i-chat"/></svg>
+        <span>Chat</span>
+        <span class="tab-badge" id="chat-badge" style="display:none;">0</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- ==========================================
+       VIDEO OVERLAY (in-app video chat)
+  ========================================== -->
+  <div id="video-overlay" class="video-overlay" style="display:none;">
+    <div class="video-topbar">
+      <span class="video-topbar-title">Video</span>
+      <select id="video-quality-select" class="device-select video-quality">
+        <option value="auto" selected>Auto</option>
+        <option value="high">High (720p)</option>
+        <option value="medium">Medium (480p)</option>
+        <option value="low">Low (360p)</option>
+      </select>
+      <button id="video-minimize-btn" class="hdr-btn" title="Minimize (keep video running)">
+        <svg class="icon"><use href="#i-minimize"/></svg>
+      </button>
+      <button id="video-close-btn" class="hdr-btn" title="Close video">
+        <svg class="icon"><use href="#i-x"/></svg>
+      </button>
+    </div>
+
+    <div class="video-grid" id="video-grid">
+      <div class="video-cell local" id="video-local-cell">
+        <video id="video-local" autoplay playsinline muted></video>
+        <div class="video-label">You</div>
+        <div class="video-no-camera" id="video-local-nocam"><span>Camera off</span></div>
+      </div>
+    </div>
+
+    <div class="video-controls">
+      <button id="video-camera-toggle" class="video-ctrl-btn" title="Camera on/off">
+        <svg class="icon icon-cam-on" style="display:none"><use href="#i-cam"/></svg>
+        <svg class="icon icon-cam-off"><use href="#i-cam-off"/></svg>
+      </button>
+      <button id="video-flip-btn" class="video-ctrl-btn" title="Switch camera" style="display:none;">
+        <svg class="icon"><use href="#i-flip"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Floating pill shown while video is minimized -->
+  <button id="video-fab" class="video-fab" style="display:none;">
+    <svg class="icon"><use href="#i-cam"/></svg>
+    <span id="video-fab-count">1</span>
+  </button>
+
+  <!-- ==========================================
+       PASSWORD CHANGE MODAL
+  ========================================== -->
+  <div id="password-modal-overlay" class="settings-overlay" style="display:none;">
+    <div class="settings-modal">
+      <div class="settings-header">
+        <svg class="icon"><use href="#i-lock"/></svg>
+        Room Password
+        <button id="password-modal-close" class="settings-close-btn"><svg class="icon"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="settings-body">
+        <div class="password-change-row">
+          <input type="password" id="new-password-input" class="room-input" placeholder="New password (empty = remove)">
+          <button id="password-modal-confirm" class="confirm-btn">Apply</button>
+        </div>
+        <div class="settings-note">Current members stay. New joiners need the updated password.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       AUDIO SETTINGS MODAL
+  ========================================== -->
+  <div id="audio-settings-overlay" class="settings-overlay" style="display:none;">
+    <div class="settings-modal">
+      <div class="settings-header">
+        <svg class="icon"><use href="#i-gear"/></svg>
+        Audio Settings
+        <button id="audio-settings-close" class="settings-close-btn"><svg class="icon"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="settings-body">
+
+        <div class="settings-section-title">Microphone</div>
+        <div class="settings-row" id="mic-select-row">
+          <div class="settings-info">
+            <span class="settings-label">Input device</span>
+          </div>
+          <select id="input-select" class="device-select"><option value="">Default</option></select>
+        </div>
+
+        <!-- [WEB] Output selector — shown only when the browser supports setSinkId -->
+        <div class="settings-row" id="output-select-row" style="display:none;">
+          <div class="settings-info">
+            <span class="settings-label">Output device</span>
+          </div>
+          <select id="output-select" class="device-select"><option value="">Default</option></select>
+        </div>
+
+        <div class="settings-section-title">Processing</div>
+        <div class="settings-row">
+          <div class="settings-info">
+            <span class="settings-label">Noise Suppression</span>
+            <span class="settings-desc">Reduces background noise</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="setting-noise-suppression">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="settings-row">
+          <div class="settings-info">
+            <span class="settings-label">Echo Cancellation</span>
+            <span class="settings-desc">Important on speakerphone</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="setting-echo-cancellation">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="settings-row">
+          <div class="settings-info">
+            <span class="settings-label">Auto Gain Control</span>
+            <span class="settings-desc">Adjusts mic sensitivity automatically</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="setting-auto-gain">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="settings-note">Changes restart the microphone briefly.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       FILE VIEWER MODAL
+  ========================================== -->
+  <div id="file-viewer-overlay" class="settings-overlay" style="display:none;">
+    <div class="settings-modal file-viewer-modal">
+      <div class="settings-header">
+        <span id="file-viewer-title" class="file-viewer-title-text"></span>
+        <button id="file-viewer-save" class="confirm-btn small">Save</button>
+        <button id="file-viewer-close" class="settings-close-btn"><svg class="icon"><use href="#i-x"/></svg></button>
+      </div>
+      <div id="file-viewer-content" class="file-viewer-content"></div>
+    </div>
+  </div>
+
+  <script src="js/ice-config.js"></script>
+  <script src="js/peerjs.min.js"></script>
+  <script type="module" src="js/app.js"></script>
+  <script>
+    // Register service worker (PWA installability + offline app shell).
+    // Skipped on localhost dev so cached files never mask fresh edits.
+    if ('serviceWorker' in navigator &&
+        location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(err => {
+          console.warn('[PWA] Service worker registration failed:', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

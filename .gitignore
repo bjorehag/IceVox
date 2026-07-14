@@ -19,3 +19,9 @@ nul
 # Unused empty directories
 srcrenderer/
 website/
+
+# Branding images
+branding/
+
+# Mobile app — home testing only, not pushed to GitHub yet
+mobile/

@@ -32,6 +32,7 @@
         </div>
         <div class="nav-links">
             <a href="#features">Features</a>
+            <a href="app/">Web App</a>
             <a href="#donate" onclick="event.preventDefault(); document.getElementById('donate-modal').showModal();">Donate</a>
             <a href="mailto:icevoxsupport@gmail.com">Contact</a>
             <a href="#download" class="nav-btn">Download</a>
@@ -43,8 +44,11 @@
         <img src="assets/icevox_logo_1.png" alt="IceVox Logo Large" class="hero-logo floating">
         <h1 class="gradient-text">IceVox</h1>
         <p class="subtitle">Real-time voice effects and P2P voice chat for gaming and roleplay.</p>
-        <a href="#download" class="btn btn-glow">Download for Windows</a>
-        <p class="small-text">Free — Windows 10/11</p>
+        <div class="hero-buttons">
+            <a href="#download" class="btn btn-glow">Download</a>
+            <a href="app/" class="btn btn-secondary">▶ Open Web App</a>
+        </div>
+        <p class="small-text">Free — Windows · Android · Browser</p>
     </header>
 
     <!-- Pro Tip Loopback Banner -->
@@ -116,20 +120,47 @@
 
     <!-- Download Section -->
     <section id="download" class="download container reveal">
-        <h2 class="gradient-text">Download IceVox</h2>
-        <div class="download-card glass-card">
-            <p class="subtitle" style="margin-bottom: 5px;">IceVox Setup · Windows 10/11</p>
-            
-            <!-- TODO: After next build (with artifactName), change URL to:
-                 https://github.com/bjorehag/IceVox/releases/latest/download/IceVox-Setup.exe -->
-            <a href="https://github.com/bjorehag/IceVox/releases/download/v0.3.0/IceVox.Setup.0.3.0.exe" class="btn btn-glow">Download v0.3.0</a>
-            
-            <p class="smartscreen-warning">
-                <strong>Note:</strong> Windows SmartScreen may warn about unsigned software —<br>
-                this is normal for indie apps.<br>
-                Click <em>'More info'</em> → <em>'Run anyway'</em> to proceed.
-            </p>
+        <h2 class="gradient-text">Get IceVox</h2>
+        <div class="platform-grid">
+
+            <div class="download-card glass-card">
+                <p class="platform-icon">🖥️</p>
+                <h3>Windows</h3>
+                <p class="subtitle platform-sub">Full desktop app · Windows 10/11</p>
+                <a href="https://github.com/bjorehag/IceVox/releases/latest/download/IceVox-Setup.exe" class="btn btn-glow">Download .exe</a>
+                <p class="smartscreen-warning">
+                    <strong>Note:</strong> Windows SmartScreen may warn about
+                    unsigned software — normal for indie apps.
+                    Click <em>'More info'</em> → <em>'Run anyway'</em>.
+                </p>
+            </div>
+
+            <div class="download-card glass-card">
+                <p class="platform-icon">📱</p>
+                <h3>Android <span class="beta-tag">BETA</span></h3>
+                <p class="subtitle platform-sub">Mobile app · Android 7+</p>
+                <a href="https://github.com/bjorehag/IceVox/releases/latest/download/IceVox-Mobile.apk" class="btn btn-glow">Download .apk</a>
+                <p class="smartscreen-warning">
+                    <strong>Note:</strong> Installed outside Google Play
+                    (sideload) — Android asks you to allow
+                    <em>'Install unknown apps'</em>. Normal for indie apps.
+                </p>
+            </div>
+
+            <div class="download-card glass-card">
+                <p class="platform-icon">🌐</p>
+                <h3>Browser <span class="beta-tag">BETA</span></h3>
+                <p class="subtitle platform-sub">No install · works on iPhone too</p>
+                <a href="app/" class="btn btn-glow">Open Web App</a>
+                <p class="smartscreen-warning">
+                    Runs in Chrome, Edge, Firefox &amp; Safari.
+                    Can be installed from the browser menu
+                    (<em>'Install app'</em> / <em>'Add to Home Screen'</em>).
+                </p>
+            </div>
+
         </div>
+        <p class="small-text" style="margin-top: 18px;">All versions talk to each other — mix Windows, Android and browser users in the same room.</p>
     </section>
 
     <!-- Donate Modal -->

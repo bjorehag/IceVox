@@ -24,6 +24,9 @@ if (roomId && roomId !== 'join' && roomId !== 'join.html') {
 
     // Manual "open" button
     document.getElementById('open-btn').href = protocolUrl;
+
+    // Browser option — the web app auto-joins ?room= after the user starts audio
+    document.getElementById('open-web-btn').href = `app/?room=${encodeURIComponent(roomId)}`;
 } else {
     // Invalid URL structure, fallback
     document.getElementById('room-id-display').textContent = 'Unknown Room';
