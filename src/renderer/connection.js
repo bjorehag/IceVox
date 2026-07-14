@@ -301,6 +301,13 @@ class ConnectionManager {
       // If the host has no password, an empty password is accepted.
       dataConn.send(JSON.stringify({ type: 'join-request', password: password || '' }));
 
+      // [v0.3.1 FIX] Send our peer-info to the host. Previously only the host
+      // sent its info (guests got the host's name but not vice versa), so the
+      // host displayed raw peer IDs in the participant list and the host-side
+      // onPeerJoined callback never fired for guests — which also meant the
+      // host's video window was never told about peers joining after it opened.
+      this._sendPeerInfoTo(dataConn);
+
       const existing = this.peers.get(roomId);
       if (existing) {
         existing.dataConn = dataConn;

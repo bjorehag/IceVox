@@ -25,7 +25,11 @@
   let iceConfig = [];          // ICE servers (received from main window)
   let ownPeerId = null;        // Our peer ID
   let localStream = null;      // Local camera MediaStream
-  let cameraOn = true;         // Camera toggle state
+  // [v0.3.1 FIX] Camera state must start FALSE — the camera is never started
+  // on window open ("defaults to OFF"), but this flag used to start as true,
+  // so the first click on the camera button was a no-op "turn off" and only
+  // the second click actually started the camera.
+  let cameraOn = false;        // Camera toggle state
   let focusMode = false;       // Grid vs Focus layout
   let focusedPeerId = null;    // Which peer is focused (focus mode)
   let qualityMode = 'auto';    // 'auto' | 'high' | 'medium' | 'low'
@@ -207,6 +211,14 @@
       localStream.getTracks().forEach(track => {
         pc.addTrack(track, localStream);
       });
+    } else {
+      // [v0.3.1 FIX] Camera off: add a receive-only video transceiver so that
+      // OUR offers still contain a video m-line. Without it, an offer from a
+      // camera-off initiator has no media sections at all, and the remote
+      // side's camera track can never be attached to the answer (SDP answers
+      // can only respond to offered m-lines) — the receiver stayed on
+      // "Connecting..." until the initiator toggled their own camera.
+      pc.addTransceiver('video', { direction: 'recvonly' });
     }
 
     // Remote video arrives
@@ -661,6 +673,9 @@
 
   // Populate camera list on startup (labels may be empty until permission is granted)
   enumerateCameras();
+
+  // [v0.3.1 FIX] Sync the camera button with the actual initial state (off)
+  updateCameraButton();
 
   console.log('[Video] Video renderer initialized');
   window.videoIPC.notifyReady();
